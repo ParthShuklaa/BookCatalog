@@ -1,0 +1,114 @@
+@model BookCatalog.Models.BookIndexViewModel
+
+@{
+    ViewData["Title"] = "Book Catalog";
+}
+
+<h1>Book Catalog</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Genre</th>
+            <th>Published Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var book in Model.Books)
+        {
+            <tr>
+                <td>@book.Title</td>
+                <td>@book.Author</td>
+                <td>@book.Genre</td>
+                <td>@book.PublishedDate.ToShortDateString()</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@book.Id">Edit</a> |
+                    <a asp-action="Delete" asp-route-id="@book.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@* Add book form *@
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h3>Add New Book</h3>
+        <form id="addBookForm" method="post" asp-action="AddBook" asp-controller="Books">
+            @Html.AntiForgeryToken()
+            <div class="form-group">
+                <label asp-for="NewBook.Title"></label>
+                <input asp-for="NewBook.Title" class="form-control" />
+                <span asp-validation-for="NewBook.Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NewBook.Author"></label>
+                <input asp-for="NewBook.Author" class="form-control" />
+                <span asp-validation-for="NewBook.Author" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NewBook.Genre"></label>
+                <input asp-for="NewBook.Genre" class="form-control" />
+                <span asp-validation-for="NewBook.Genre" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NewBook.PublishedDate"></label>
+                <input asp-for="NewBook.PublishedDate" class="form-control" />
+                <span asp-validation-for="NewBook.PublishedDate" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Book</button>
+        </form>
+    </div>
+</div>
+
+@* Book List with partial views *@
+<h3>Book Collection</h3>
+<div id="book-collection">
+    <ul class="list-group">
+        @foreach (var book in Model.Books)
+        {
+            <partial name="_BookCard" model="book" />
+        }
+    </ul>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        $(document).ready(function() {
+            // AJAX form submission
+            $('#addBookForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                var form = $(this);
+                if (!form.valid()) return;
+                
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: form.serialize(),
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(data) {
+                        // Append the new book card to the list
+                        $('#book-collection ul').append(data);
+                        
+                        // Reset the form
+                        form[0].reset();
+                        
+                        // Also update the table (for demonstration)
+                        location.reload();
+                    },
+                    error: function() {
+                        alert('Error adding book. Please try again.');
+                    }
+                });
+            });
+        });
+    </script>
+}

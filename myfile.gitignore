@@ -1,0 +1,23 @@
+# .NET build outputs
+bin/
+obj/
+
+# NuGet packages
+.nuget/
+*.nupkg
+
+# VS Code
+.vscode/
+
+# User-specific files
+*.user
+*.suo
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+
+# Exception from above: keep the .NET Core launch settings
+!Properties/launchSettings.json
